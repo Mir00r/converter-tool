@@ -3,6 +3,8 @@ package com.sde.converter.exceltocsv.controllers;
 import com.sde.converter.commons.Constants;
 import com.sde.converter.exceltocsv.services.ExcelToCSVService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +19,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -78,7 +82,7 @@ public class ExcelToCSVController {
         }
     }
 
-    @PostMapping(value = "/excel-to-csv-zip", produces = "application/zip")
+    @PostMapping(value = "/excel-to-csv-zip")
     public ResponseEntity<byte[]> excelToCsvZip(
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "separator", required = false) String separator,
@@ -86,7 +90,7 @@ public class ExcelToCSVController {
     ) {
         try (InputStream excelInputStream = file.getInputStream()) {
 
-            byte[] zipContent = this.excelToCSVService.convertExcelToCsvZip(excelInputStream, separator, batchSize);
+            byte[] zipContent = this.excelToCSVService.convertExcelToCsv(excelInputStream, separator);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType("application/zip"));
@@ -94,7 +98,8 @@ public class ExcelToCSVController {
             return new ResponseEntity<>(zipContent, headers, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(("Error converting file: " + e.getMessage()).getBytes());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(("Error converting file: " + Arrays.toString(e.getMessage().getBytes())).getBytes());
         }
     }
 }
