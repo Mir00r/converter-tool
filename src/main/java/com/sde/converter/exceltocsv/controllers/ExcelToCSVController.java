@@ -1,11 +1,9 @@
 package com.sde.converter.exceltocsv.controllers;
 
 import com.sde.converter.commons.Constants;
+import com.sde.converter.exceltocsv.services.ExcelService;
 import com.sde.converter.exceltocsv.services.ExcelToCSVService;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,20 +18,18 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @RestController
 @RequestMapping("/convert")
 public class ExcelToCSVController {
 
     private final ExcelToCSVService excelToCSVService;
+    private final ExcelService excelService;
 
     @Autowired
-    public ExcelToCSVController(ExcelToCSVService excelToCSVService) {
+    public ExcelToCSVController(ExcelToCSVService excelToCSVService, ExcelService excelService) {
         this.excelToCSVService = excelToCSVService;
+        this.excelService = excelService;
     }
 
 
@@ -91,8 +87,7 @@ public class ExcelToCSVController {
     ) {
         try (InputStream excelInputStream = file.getInputStream()) {
 
-            byte[] zipContent = this.excelToCSVService.convertExcelToCsvZip(excelInputStream, separator, batchSize);
-//            byte[] zipContent = this.excelToCSVService.convertExcelToCsv(excelInputStream, separator, batchSize);
+            byte[] zipContent = this.excelToCSVService.convertExcelToCsv(excelInputStream, separator);
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType("application/zip"));
@@ -102,28 +97,28 @@ public class ExcelToCSVController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(("Error converting file: " + Arrays.toString(e.getMessage().getBytes())).getBytes());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 
+    @PostMapping(value = "/large-excel-to-csv-zip")
+    public String largeExcelToCsvZip(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "separator", required = false) Character separator,
+            @RequestParam(name = "batchSize", defaultValue = "0") int batchSize
+    ) throws Exception {
+//        try (InputStream excelInputStream = file.getInputStream()) {
 
-    @PostMapping("/excel-to-csv-zip1")
-    public ResponseEntity<Resource> convertExcelToCSV(@RequestParam("file") MultipartFile file) {
-        try (InputStream excelInputStream = file.getInputStream()) {
-            ByteArrayResource zipResource = this.excelToCSVService.convertExcelToCSV(excelInputStream);
+//            this.excelToCSVService.convertLargeExcelToCSV(excelInputStream, separator, batchSize);
+//            this.excelService.processLargeExcel(file, separator, batchSize);
+            this.excelService.vaiConvertKor();
 
-            // Set appropriate headers for downloading the ZIP file
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"output.zip\"");
-
-            return ResponseEntity.ok().headers(headers).body(zipResource);
-        } catch (IOException | InvalidFormatException e) {
-            e.printStackTrace();
-            // Handle error response
-            return ResponseEntity.internalServerError().build();
-        }
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.setContentType(MediaType.parseMediaType("application/zip"));
+//            headers.setContentDispositionFormData(file.getOriginalFilename() + ".zip", file.getOriginalFilename() + ".zip");
+            return "new ResponseEntity<>(zipContent, headers, HttpStatus.OK)";
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return "ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)";
+//        }
     }
-
-
 }
