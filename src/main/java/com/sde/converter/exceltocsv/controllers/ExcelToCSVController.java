@@ -102,15 +102,15 @@ public class ExcelToCSVController {
 
     @PostMapping(value = "/large-excel-to-csv-zip")
     public String largeExcelToCsvZip(
-            @RequestParam("file") MultipartFile file,
+//            @RequestParam("file") MultipartFile file,
             @RequestParam(value = "separator", required = false) Character separator,
             @RequestParam(name = "batchSize", defaultValue = "0") int batchSize
     ) throws Exception {
 //        try (InputStream excelInputStream = file.getInputStream()) {
 
 //            this.excelToCSVService.convertLargeExcelToCSV(excelInputStream, separator, batchSize);
-//            this.excelService.processLargeExcel(file, separator, batchSize);
-            this.excelService.vaiConvertKor();
+            this.excelService.processLargeExcel(null, separator, batchSize);
+//            this.excelService.vaiConvertKor();
 
 //            HttpHeaders headers = new HttpHeaders();
 //            headers.setContentType(MediaType.parseMediaType("application/zip"));

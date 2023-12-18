@@ -102,7 +102,7 @@ public class ExcelService {
     }
 
     public void vaiConvertKor() {
-        String excelFilePath = "C:/Users/sdarmd/Downloads/Employee Sample Data_1M.xlsx";
+        String excelFilePath = "sample_data/Employee Sample Data_1M.xlsx";
         String csvDirectory = AppUtil.createOutputDirectory("csv").getAbsolutePath();
         String csvPrefix = "output_";
 
@@ -159,7 +159,7 @@ public class ExcelService {
     }
 
     public void processLargeExcel(MultipartFile excelFile, Character separator, int dataSize) throws Exception {
-        File inputFile = new File("C:/Users/sdarmd/Downloads/Employee Sample Data_1M.xlsx");
+        File inputFile = new File("sample_data/Employee Sample Data_1M.xlsx");
 
 //        InputStream excelInputStream = new FileInputStream("C:/Users/sdarmd/Downloads/Employee Sample Data_1M.xlsx");
 //        File outputDirectory = new File("output");
@@ -187,7 +187,7 @@ public class ExcelService {
 
             // Get the XMLReader from the SAXParser
             XMLReader xmlReader = saxParser.getXMLReader();
-            String csvFileName = String.format("%s.csv", excelFile.getName().replace(".xlsx", ""));
+            String csvFileName = String.format("%s.csv", inputFile.getName().replace(".xlsx", ""));
             File csvFile = new File(excelDirectory, csvFileName);
             ExcelSheetContentHandler contentHandler = new ExcelSheetContentHandler(sharedStringsTable, new CSVWriter(new FileWriter(csvFile)));
             xmlReader.setContentHandler(contentHandler);
@@ -201,88 +201,6 @@ public class ExcelService {
             }
         } catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private XMLReader createXMLReader() throws SAXException, ParserConfigurationException {
-        XMLReader xmlReader = XMLReaderFactory.createXMLReader("org.apache.xerces.parsers.SAXParser");
-        xmlReader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        return xmlReader;
-    }
-
-    private ContentHandler createSheetContentsHandler(SharedStringsTable sharedStringsTable) {
-        return new DefaultHandler() {
-            private String lastContents;
-            private boolean nextIsString;
-
-            @Override
-            public void startElement(String uri, String localName, String name, org.xml.sax.Attributes attributes) throws SAXException {
-                // Start of an XML element, handle accordingly
-
-            }
-
-            @Override
-            public void endElement(String uri, String localName, String name) throws SAXException {
-                // End of an XML element, handle accordingly
-
-            }
-
-            @Override
-            public void characters(char[] ch, int start, int length) throws SAXException {
-                // Characters within an XML element, handle accordingly
-            }
-        };
-    }
-    private static class MySheetContentsHandler implements XSSFSheetXMLHandler.SheetContentsHandler {
-        private int currentRow = -1;
-        private int currentCol = -1;
-
-        @Override
-        public void startRow(int rowNum) {
-            currentRow = rowNum;
-            currentCol = -1;
-        }
-
-        @Override
-        public void endRow(int rowNum) {
-            // Process the row data
-        }
-
-        @Override
-        public void cell(String cellReference, String formattedValue, XSSFComment comment) {
-            int col = (new CellReference(cellReference)).getCol();
-            currentCol = col;
-            // Process cell data
-        }
-
-        @Override
-        public void headerFooter(String text, boolean isHeader, String tagName) {
-            // Process header/footer if needed
-        }
-    }
-
-
-
-    public void convertExcelToCsv(InputStream excelInputStream, File outputDirectory) throws Exception {
-        try (Workbook workbook = new XSSFWorkbook(excelInputStream)) {
-            for (int sheetIndex = 0; sheetIndex < workbook.getNumberOfSheets(); sheetIndex++) {
-                XSSFSheet sheet = (XSSFSheet) workbook.getSheetAt(sheetIndex);
-                String csvFileName = "sheet_" + sheetIndex + ".csv";
-                File csvFile = new File(outputDirectory, csvFileName);
-
-                try (CSVWriter csvWriter = new CSVWriter(new FileWriter(csvFile))) {
-                    for (Row row : sheet) {
-                        String[] csvRow = new String[row.getLastCellNum()];
-
-                        for (int cellIndex = 0; cellIndex < row.getLastCellNum(); cellIndex++) {
-                            Cell cell = row.getCell(cellIndex, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK);
-                            csvRow[cellIndex] = AppUtil.getCellValueAsString(cell);
-                        }
-
-                        csvWriter.writeNext(csvRow);
-                    }
-                }
-            }
         }
     }
 }
