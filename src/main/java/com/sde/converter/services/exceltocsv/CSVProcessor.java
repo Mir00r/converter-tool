@@ -1,7 +1,7 @@
-package com.sde.converter.exceltocsv.services;
+package com.sde.converter.services.exceltocsv;
 
 import com.opencsv.CSVWriter;
-import com.sde.converter.AppUtil;
+import com.sde.converter.utils.AppUtil;
 import com.sde.converter.commons.Constants;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;

@@ -1,8 +1,8 @@
-package com.sde.converter.exceltocsv.controllers;
+package com.sde.converter.controllers.exceltocsv;
 
 import com.sde.converter.commons.Constants;
-import com.sde.converter.exceltocsv.services.ExcelService;
-import com.sde.converter.exceltocsv.services.ExcelToCSVService;
+import com.sde.converter.services.exceltocsv.ExcelService;
+import com.sde.converter.services.exceltocsv.ExcelToCSVService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -102,7 +102,7 @@ public class ExcelToCSVController {
 
     @PostMapping(value = "/large-excel-to-csv-zip")
     public String largeExcelToCsvZip(
-            @RequestParam("file") MultipartFile file,
+//            @RequestParam("file") MultipartFile file,
             @RequestParam(value = "separator", required = false) Character separator,
             @RequestParam(name = "batchSize", defaultValue = "0") int batchSize
     ) throws Exception {
