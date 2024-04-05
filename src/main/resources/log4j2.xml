@@ -1,3 +1,4 @@
+<!--
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE xml>
 
@@ -6,8 +7,8 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="[%t][%p][%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ}][tagId:%X{fishTagId}][%c] %m%n" />
 		</Console>
-		
-		<RollingRandomAccessFile name="RollingRandomAccessFile" 
+
+		<RollingRandomAccessFile name="RollingRandomAccessFile"
 			fileName="/data/log_files/converter/log-${env:HOSTNAME:-converter-tool-no_container_id}.txt"
 			filePattern="/data/log_files/converter/${date:yyyy-MM}/log-${env:HOSTNAME:-converter-tool-no_container_id}.txt-%d{yyyy-MM-dd}-%i.gz">
 			<PatternLayout pattern="[%t][%p][%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ}][tagId:%X{fishTagId}][%c] %m%n" />
@@ -15,8 +16,8 @@
 				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
 			</Policies>
 		</RollingRandomAccessFile>
-		
-		<RollingRandomAccessFile name="RollingRandomAccessFileSysLog" 
+
+		<RollingRandomAccessFile name="RollingRandomAccessFileSysLog"
 			fileName="/data/log_files/converter/log-${env:HOSTNAME:-converter-tool-no_container_id}-sys.txt"
 			filePattern="/data/log_files/converter/${date:yyyy-MM}/log-${env:HOSTNAME:-converter-tool-no_container_id}-sys.txt-%d{yyyy-MM-dd}-%i.gz">
 	    	<PatternLayout pattern="[%t][%p][%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ}][tagId:%X{fishTagId}][%c] %m%n"/>
@@ -26,7 +27,7 @@
 	      	</Policies>
 	      	<MarkerFilter marker="SYSLOG_MARKER" onMatch="ACCEPT" onMismatch="DENY"/>
 	    </RollingRandomAccessFile>
-		
+
 		<Async name="Async">
 			<appender-ref ref="Console" />
 			<appender-ref ref="RollingRandomAccessFile" />
@@ -49,7 +50,7 @@
 			level="error" />
 		<logger name="org.hibernate" level="info" />
 		<logger name="org.hibernate.SQL" level="debug" />
-		<!-- <logger name="org.hibernate.type" level="trace"/> -->
+
 		<logger name="org.hibernate.stat.internal.ConcurrentStatisticsImpl"
 			level="debug" />
 		<logger name="org.springframework" level="info" />
@@ -69,3 +70,21 @@
 		</root>
 	</loggers>
 </configuration>
+-->
+
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+	<Properties>
+		<Property name="LOG_PATTERN">%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %p %m%n</Property>
+	</Properties>
+	<Appenders>
+		<Console name="console" target="SYSTEM_OUT" follow="true">
+			<PatternLayout pattern="${LOG_PATTERN}"/>
+		</Console>
+	</Appenders>
+	<Loggers>
+		<Root level="debug">
+			<AppenderRef ref="console"/>
+		</Root>
+	</Loggers>
+</Configuration>

@@ -1,6 +1,7 @@
 package com.sde.converter.services.exceltocsv;
 
 import com.opencsv.CSVWriter;
+import com.sde.converter.aop.ConverterPerformanceProfiler;
 import com.sde.converter.utils.AppUtil;
 import com.sde.converter.handler.ExcelSheetContentHandler;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
@@ -16,6 +17,8 @@ import org.apache.poi.xssf.model.SharedStringsTable;
 import org.apache.poi.xssf.usermodel.XSSFComment;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -40,6 +43,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 @Service
 public class ExcelService {
+
+    private static Logger log = LoggerFactory.getLogger(ExcelService.class);
 
     private static final int NUM_CONSUMERS = 2; // Number of consumer threads
 
@@ -157,49 +162,50 @@ public class ExcelService {
     }
 
     public void processLargeExcel(MultipartFile excelFile, Character separator, int dataSize) throws Exception {
-        File inputFile = new File("sample_data/Employee Sample Data_1M.xlsx");
+        log.info("processLargeExcel is calling");
+//        File inputFile = new File("sample_data/Employee Sample Data_1M.xlsx");
 
 //        InputStream excelInputStream = new FileInputStream("C:/Users/sdarmd/Downloads/Employee Sample Data_1M.xlsx");
 //        File outputDirectory = new File("output");
 //        outputDirectory.mkdirs();
 //        convertExcelToCsv(excelInputStream, outputDirectory);
 
-        try (
-                OPCPackage opcPackage = OPCPackage.open(inputFile)
-//                InputStream excelInputStream = excelFile.getInputStream()
-        ) {
-            File excelDirectory = AppUtil.createOutputDirectory("output/excel"); // Create a temporary directory
-            File csvDirectory = AppUtil.createOutputDirectory("output/csv"); // Create a temporary directory
-
-//            XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
-            SharedStringsTable sharedStringsTable = new SharedStringsTable();
-            XSSFReader xssfReader = new XSSFReader(opcPackage);
-
-//            XMLReader xmlReader = createXMLReader();
-            // Create a SAXParserFactory and configure it
-            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-            saxParserFactory.setNamespaceAware(true); // Enable namespace support
-
-            // Create a SAXParser
-            SAXParser saxParser = saxParserFactory.newSAXParser();
-
-            // Get the XMLReader from the SAXParser
-            XMLReader xmlReader = saxParser.getXMLReader();
-            String csvFileName = String.format("%s.csv", inputFile.getName().replace(".xlsx", ""));
-            File csvFile = new File(excelDirectory, csvFileName);
-            ExcelSheetContentHandler contentHandler = new ExcelSheetContentHandler(sharedStringsTable, new CSVWriter(new FileWriter(csvFile)));
-            xmlReader.setContentHandler(contentHandler);
-
-            Iterator<InputStream> sheetStreams = xssfReader.getSheetsData();
-            while (sheetStreams.hasNext()) {
-                try (InputStream sheetStream = sheetStreams.next()) {
-                    InputSource sheetSource = new InputSource(sheetStream);
-                    xmlReader.parse(sheetSource);
-                }
-            }
-        } catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {
-            throw new RuntimeException(e);
-        }
+//        try (
+//                OPCPackage opcPackage = OPCPackage.open(inputFile)
+////                InputStream excelInputStream = excelFile.getInputStream()
+//        ) {
+//            File excelDirectory = AppUtil.createOutputDirectory("output/excel"); // Create a temporary directory
+//            File csvDirectory = AppUtil.createOutputDirectory("output/csv"); // Create a temporary directory
+//
+////            XSSFWorkbook workbook = new XSSFWorkbook(opcPackage);
+//            SharedStringsTable sharedStringsTable = new SharedStringsTable();
+//            XSSFReader xssfReader = new XSSFReader(opcPackage);
+//
+////            XMLReader xmlReader = createXMLReader();
+//            // Create a SAXParserFactory and configure it
+//            SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
+//            saxParserFactory.setNamespaceAware(true); // Enable namespace support
+//
+//            // Create a SAXParser
+//            SAXParser saxParser = saxParserFactory.newSAXParser();
+//
+//            // Get the XMLReader from the SAXParser
+//            XMLReader xmlReader = saxParser.getXMLReader();
+//            String csvFileName = String.format("%s.csv", inputFile.getName().replace(".xlsx", ""));
+//            File csvFile = new File(excelDirectory, csvFileName);
+//            ExcelSheetContentHandler contentHandler = new ExcelSheetContentHandler(sharedStringsTable, new CSVWriter(new FileWriter(csvFile)));
+//            xmlReader.setContentHandler(contentHandler);
+//
+//            Iterator<InputStream> sheetStreams = xssfReader.getSheetsData();
+//            while (sheetStreams.hasNext()) {
+//                try (InputStream sheetStream = sheetStreams.next()) {
+//                    InputSource sheetSource = new InputSource(sheetStream);
+//                    xmlReader.parse(sheetSource);
+//                }
+//            }
+//        } catch (IOException | OpenXML4JException | SAXException | ParserConfigurationException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 }
 
